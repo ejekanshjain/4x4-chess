@@ -1,0 +1,188 @@
+@import 'tailwindcss';
+
+/* Theme comes from data-theme on <html>, set before first paint by the script in the root layout. */
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+:root {
+  --bg: #e7eef2;
+  --grid: #d3dee5;
+  --surface: #ffffff;
+  --fg: #14212b;
+  --muted: #5b6b78;
+  --line: #14212b;
+  --frame: #14212b;
+  --light-sq: #f4d58d;
+  --dark-sq: #2f6f6a;
+  --accent: #e9573f;
+  --piece-light: #fff8ec;
+  --piece-dark: #14212b;
+}
+
+[data-theme='dark'] {
+  --bg: #0f171d;
+  --grid: #18242c;
+  --surface: #18232b;
+  --fg: #eaf1f4;
+  --muted: #93a4b1;
+  --line: #3a4a56;
+  --frame: #05090c;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-light-sq: var(--light-sq);
+  --color-dark-sq: var(--dark-sq);
+  --font-sans: var(--font-body);
+  --font-display: var(--font-unbounded);
+}
+
+body {
+  background-color: var(--bg);
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 48px 48px;
+  color: var(--fg);
+}
+
+@layer components {
+  .card {
+    background: var(--surface);
+    border: 2px solid var(--line);
+    border-radius: 18px;
+  }
+
+  .btn {
+    border: 2px solid var(--fg);
+    border-radius: 999px;
+    font-weight: 700;
+    padding: 0.55rem 1.2rem;
+    transition:
+      transform 100ms,
+      background-color 150ms;
+  }
+  .btn:hover:not(:disabled) {
+    transform: translateY(-1px);
+  }
+  .btn:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+  .btn:disabled {
+    opacity: 0.5;
+  }
+  .btn-primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #ffffff;
+  }
+  .btn-plain {
+    background: transparent;
+    color: var(--fg);
+  }
+
+  /* The board is a physical object, so it keeps its colors in both themes. */
+  .board {
+    border: 10px solid var(--frame);
+    border-radius: 20px;
+    box-shadow: 0 18px 40px -18px rgb(0 0 0 / 0.55);
+    overflow: hidden;
+  }
+
+  .piece-light {
+    --fill: var(--piece-light);
+    --stroke: var(--piece-dark);
+  }
+  .piece-dark {
+    --fill: var(--piece-dark);
+    --stroke: var(--piece-light);
+  }
+}
+
+/* The piece that just moved slides in from its old square. */
+.slide {
+  animation: slide 260ms cubic-bezier(0.2, 0.8, 0.3, 1) both;
+}
+.pop {
+  animation: pop 380ms cubic-bezier(0.3, 1.5, 0.5, 1) both;
+}
+.check-glow {
+  background: radial-gradient(circle, rgb(233 87 63 / 0.95) 0 30%, rgb(233 87 63 / 0) 72%);
+  animation: check-pulse 900ms ease-in-out infinite alternate;
+}
+.hero-piece {
+  animation: pop 420ms cubic-bezier(0.3, 1.5, 0.5, 1) both;
+  animation-delay: calc(var(--i) * 45ms + 100ms);
+}
+
+.confetti-piece {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 10px;
+  height: 14px;
+  border: 2px solid var(--frame);
+  border-radius: 3px;
+  animation: confetti 1600ms cubic-bezier(0.2, 0.7, 0.4, 1) both;
+  animation-delay: var(--delay);
+}
+
+@keyframes slide {
+  from {
+    transform: translate(var(--from-x), var(--from-y));
+  }
+  to {
+    transform: translate(0, 0);
+  }
+}
+
+@keyframes pop {
+  from {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes check-pulse {
+  from {
+    opacity: 0.55;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes confetti {
+  0% {
+    transform: translate(0, 0) rotate(0);
+    opacity: 1;
+  }
+  35% {
+    transform: translate(calc(var(--x) * 0.8), var(--y)) rotate(calc(var(--r) * 0.4));
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--x), calc(var(--y) + 520px)) rotate(var(--r));
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+  }
+  .confetti-piece {
+    display: none;
+  }
+}
